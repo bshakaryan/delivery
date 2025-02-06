@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Войти</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Войти в аккаунт</h2>
+        <form action="http://localhost:3000/login" method="POST">
+            <label for="username">Имя пользователя</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Пароль</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit" id="submit">Войти</button>
+        </form>
+        <p>Нет аккаунта? <a href="register.html">Зарегистрироваться</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submitButton = document.getElementById('submit');
+            if (submitButton) {
+                submitButton.addEventListener('click', function(e) {
+                    // Обработчик события для кнопки "Войти"
+                    console.log('Кнопка нажата');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

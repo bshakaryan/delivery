@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #f4f4f9; /* светлый фон для страницы */
+            font-family: 'Arial', sans-serif; /* Шрифт */
+        }
+        
+        nav {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #007bff; /* синий фон */
+            border-radius: 8px; /* скругленные углы */
+            padding: 10px 20px; /* внутренние отступы */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* тень для добавления глубины */
+        }
+
+        nav a {
+            color: white; /* белый текст */
+            text-decoration: none; /* убирает подчеркивание */
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease; /* плавный переход для эффектов */
+        }
+
+        nav a:hover {
+            color: #ffd700; /* золотистый цвет при наведении */
+            text-decoration: underline; /* подчеркивание при наведении */
+        }
+
+        nav a:active {
+            color: #ff4500; /* оранжевый цвет при нажатии */
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center; /* Центрирует кнопки по горизонтали */
+            gap: 15px; /* промежуток между кнопками */
+        }
+
+        .action-buttons a {
+            background-color: #28a745; /* зеленый фон */
+            color: white; /* белый текст */
+            text-decoration: none; /* убирает подчеркивание */
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .action-buttons a:hover {
+            background-color: #218838; /* темно-зеленый при наведении */
+        }
+
+        .action-buttons a:active {
+            background-color: #1e7e34; /* при нажатии */
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/logout">Выйти</a>
+    </nav>
+    <div class="action-buttons">
+        <h1 style="text-align: center;">Добро пожаловать, <%= user.username %></h1>
+        <a href="/user/edit">Редактировать профиль</a>
+        <a href="/user/order">Оформить заказ</a>
+    </div>
+    <!-- <h2>Информация о пользователе:</h2>
+    <p>Имя: <%= user.name %></p>
+    <p>Электронная почта: <%= user.email %></p>
+    <p>Роль: <%= user.roles %></p> -->
+
+    <!-- Здесь можно добавить логику для отображения заказов -->
+    <!-- <h3>Ваши заказы:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Цена</th>
+                <th>Дата создания</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% user.orders.forEach(function(order) { %>
+                <tr>
+                    <td><%= order.id %></td>
+                    <td><%= order.price %></td>
+                    <td><%= order.created_at %></td>
+                    <td>
+                        <a href="/order/edit/<%= order.id %>">Редактировать</a>
+                        <a href="/order/delete/<%= order.id %>">Удалить</a>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table> -->
+</body>
+</html>

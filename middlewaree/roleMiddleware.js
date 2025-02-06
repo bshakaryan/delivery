@@ -14,7 +14,6 @@ module.exports = function (roles) {
                 return res.status(403).json({message: "TOKEN: Пользователь не авторизован"})
             }
         
-            // console.log("DECODED:", token);
             const {roles: userRoles} = jwt.verify(token, secret);
             let hasRole = false
             userRoles.forEach(role => {

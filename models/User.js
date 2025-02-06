@@ -29,7 +29,10 @@ const UserSchema = new Schema({
     phone: {
         type: String,
         required: true,
-    }
+    },
+    orders: [{
+        type: Number,
+    }]
 });
 
 module.exports = model('User', UserSchema);
