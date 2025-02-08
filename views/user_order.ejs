@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформить заказ</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            margin: 0;
+            background-color: #f4f4f9;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .quantity {
+            width: 60px;
+            margin-top: 10px;
+        }
+
+        .order-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .order-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Оформить заказ</h2>
+        <form action="/user/order" method="POST">
+            <div class="menu">
+                <div class="card">
+                    <img src="/images/pizza.jpg" alt="Пицца">
+                    <h3>Пицца</h3>
+                    <p>Вкусная итальянская пицца</p>
+                    <input type="number" name="pizza" class="quantity" min="0" value="0">
+                </div>
+                <div class="card">
+                    <img src="/images/hamburger.jpg" alt="Гамбургер">
+                    <h3>Гамбургер</h3>
+                    <p>Сочный бургер с говядиной</p>
+                    <input type="number" name="hamburger" class="quantity" min="0" value="0">
+                </div>
+                <div class="card">
+                    <img src="/images/cheeseburger.jpg" alt="Чизбургер">
+                    <h3>Чизбургер</h3>
+                    <p>Сырный бургер</p>
+                    <input type="number" name="cheeseburger" class="quantity" min="0" value="0">
+                </div>
+                <div class="card">
+                    <img src="/images/fries.jpg" alt="Картошка фри">
+                    <h3>Картошка фри</h3>
+                    <p>Хрустящая картошка</p>
+                    <input type="number" name="fries" class="quantity" min="0" value="0">
+                </div>
+                <div class="card">
+                    <img src="/images/nuggets.jpg" alt="Наггетсы">
+                    <h3>Наггетсы</h3>
+                    <p>Куриные наггетсы</p>
+                    <input type="number" name="nuggets" class="quantity" min="0" value="0">
+                </div>
+            </div>
+            <button type="submit" class="order-button">Заказать</button>
+            <br>
+            <a href="/user" class="back-button">Назад</a>
+        </form>
+    </div>
+</body>
+</html>
