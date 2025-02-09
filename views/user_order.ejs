@@ -66,9 +66,38 @@
             background-color: #0056b3;
         }
     </style>
+    <style>
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px auto;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .alert-danger p {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
+        <% if (error_messages.length > 0) { %>
+            <div class="alert-danger">
+                <div>
+                    <% error_messages.forEach(function(message) { %>
+                        <p><%= message %></p>
+                    <% }) %>
+                </div>
+            </div>
+        <% } %>
         <h2>Оформить заказ</h2>
         <form action="/user/order" method="POST">
             <div class="menu">

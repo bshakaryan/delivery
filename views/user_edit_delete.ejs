@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение удаления</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #eef1f7;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirm-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-container button,
+        .button-container a {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+
+        .yes-button {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .yes-button:hover {
+            background-color: #c82333;
+        }
+
+        .no-button {
+            background-color: #28a745;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .no-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="confirm-container">
+        <h2>Вы точно хотите удалить аккаунт?</h2>
+        <div class="button-container">
+            <button id="delete-btn" class="yes-button">Да</button>
+            <a href="/user/edit" class="no-button">Нет</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("delete-btn").addEventListener("click", function () {
+            fetch('/user/edit/delete', {
+                method: 'DELETE',  // Указываем метод DELETE
+                headers: {
+                    'Content-Type': 'application/json'  // Заголовок для JSON
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = "/";  // Перенаправление на главную страницу, если успешен запрос
+                    } else {
+                        alert("Ошибка при удалении аккаунта");
+                    }
+                })
+                .catch(error => {
+                    console.error("Ошибка:", error);  // Логирование ошибок
+                    alert("Что-то пошло не так.");
+                });
+        });
+    </script>
+
+
+</body>
+
+</html>

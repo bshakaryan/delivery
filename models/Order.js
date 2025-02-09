@@ -36,6 +36,10 @@ const OrderSchema = new Schema({
         required: true,
         min: 0
     },
+    status: {
+        type: String,
+        required: true
+    },
 }, { timestamps: true });
 
 module.exports = model('Order', OrderSchema);

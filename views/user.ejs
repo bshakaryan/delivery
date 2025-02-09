@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,47 +10,47 @@
         body {
             margin: 0;
             height: 100vh;
-            background-color: #f4f4f9; /* светлый фон для страницы */
-            font-family: 'Arial', sans-serif; /* Шрифт */
+            background-color: #f4f4f9;
+            font-family: 'Arial', sans-serif;
         }
-        
+
         nav {
             position: absolute;
             top: 10px;
             right: 10px;
-            background-color: #007bff; /* синий фон */
-            border-radius: 8px; /* скругленные углы */
-            padding: 10px 20px; /* внутренние отступы */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* тень для добавления глубины */
+            background-color: #007bff;
+            border-radius: 8px;
+            padding: 10px 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         nav a {
-            color: white; /* белый текст */
-            text-decoration: none; /* убирает подчеркивание */
+            color: white;
+            text-decoration: none;
             font-size: 16px;
             font-weight: bold;
-            transition: all 0.3s ease; /* плавный переход для эффектов */
+            transition: all 0.3s ease;
         }
 
         nav a:hover {
-            color: #ffd700; /* золотистый цвет при наведении */
-            text-decoration: underline; /* подчеркивание при наведении */
+            color: #ffd700;
+            text-decoration: underline;
         }
 
         nav a:active {
-            color: #ff4500; /* оранжевый цвет при нажатии */
+            color: #ff4500;
         }
 
         .action-buttons {
             display: flex;
-            justify-content: center; /* Центрирует кнопки по горизонтали */
-            gap: 15px; /* промежуток между кнопками */
+            justify-content: center;
+            gap: 15px;
         }
 
         .action-buttons a {
-            background-color: #28a745; /* зеленый фон */
-            color: white; /* белый текст */
-            text-decoration: none; /* убирает подчеркивание */
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
             padding: 12px 25px;
             border-radius: 8px;
             text-align: center;
@@ -58,30 +59,75 @@
         }
 
         .action-buttons a:hover {
-            background-color: #218838; /* темно-зеленый при наведении */
+            background-color: #218838;
         }
 
         .action-buttons a:active {
-            background-color: #1e7e34; /* при нажатии */
+            background-color: #1e7e34;
+        }
+
+        .alert-success {
+            background-color: #d7f8e5;
+            color: #1c722d;
+            border: 1px solid #edf5c6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px auto;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            /* Обеспечивает, что сообщение будет поверх всего остального */
+        }
+
+        .alert-success p {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Чтобы избежать перекрытия содержимого */
+        .container {
+            margin-top: 80px;
+            /* Делаем отступ сверху, чтобы сообщение не перекрывало текст */
         }
     </style>
+
 </head>
+
 <body>
     <nav>
         <a href="/logout">Выйти</a>
     </nav>
-    <div class="action-buttons">
-        <h1 style="text-align: center;">Добро пожаловать, <%= user.username %></h1>
-        <a href="/user/edit">Редактировать профиль</a>
-        <a href="/user/order">Оформить заказ</a>
-    </div>
-    <!-- <h2>Информация о пользователе:</h2>
+    <% if (success_messages.length> 0) { %>
+        <div class="alert-success">
+            <div>
+                <% success_messages.forEach(function(message) { %>
+                    <p>
+                        <%= message %>
+                    </p>
+                    <% }) %>
+            </div>
+        </div>
+        <% } %>
+            <div class="action-buttons">
+                <h1 style="text-align: center;">Добро пожаловать, <%= user.username %>
+                </h1>
+                <a href="/user/edit">Редактировать профиль</a>
+                <a href="/user/order">Оформить заказ</a>
+            </div>
+            <!-- <h2>Информация о пользователе:</h2>
     <p>Имя: <%= user.name %></p>
     <p>Электронная почта: <%= user.email %></p>
     <p>Роль: <%= user.roles %></p> -->
 
-    <!-- Здесь можно добавить логику для отображения заказов -->
-    <!-- <h3>Ваши заказы:</h3>
+            <!-- Здесь можно добавить логику для отображения заказов -->
+            <!-- <h3>Ваши заказы:</h3>
     <table>
         <thead>
             <tr>
@@ -106,4 +152,5 @@
         </tbody>
     </table> -->
 </body>
+
 </html>

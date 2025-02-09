@@ -13,10 +13,14 @@ const { secret } = require("./config");
 const User = require("./models/User");
 const Order = require("./models/Order");
 const Dish = require("./models/Dish");
+const flash = require('connect-flash');
 const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const session = require('express-session');
+const methodOverride = require('method-override');
 require('dotenv').config();
 
+app.use(flash());
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.json());
@@ -24,6 +28,21 @@ app.use("/auth", authRouter);
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
+app.use(methodOverride('_method'));
+app.use(session({
+    secret: 'your-secret-key',  // Секрет для сессий
+    resave: false,
+    saveUninitialized: true
+}));
+app.use((req, res, next) => {
+    res.locals.success_messages = req.flash('success');
+    res.locals.error_messages = req.flash('error');
+    next();
+});
+// app.use((req, res, next) => {
+//     console.log(req.method);
+//     next();
+// });
 
 mongoose.connect(process.env.URI, {
     useNewUrlParser: true,
@@ -33,18 +52,31 @@ mongoose.connect(process.env.URI, {
 
 app.post('/register', authController.registration);
 
+app.get('/register', async(req, res) => {
+    try {
+        res.render('register');
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Ошибка сервера");
+    }
+});
+
 app.post("/login", async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
 
         if (!user) {
-            return res.status(400).send("Пользователь не найден");
+            req.flash('error', 'Пользователь не найден');
+            return res.redirect('/login');
+            // return res.status(400).send("Пользователь не найден");
         }
 
         const validPassword = bcrypt.compareSync(password, user.password);
         if (!validPassword) {
-            return res.status(400).send("Неверный пароль");
+            req.flash('error', 'Неверный пароль');
+            return res.redirect('/login');
+            // return res.status(400).send("Неверный пароль");
         }
 
         const token = jwt.sign({ id: user._id, roles: user.roles }, secret, { expiresIn: "24h" });
@@ -63,13 +95,51 @@ app.post("/user/edit", authMiddleware, async (req, res) => {
         const currentUser = await User.findById(req.user.id, { username: 1 });
         // console.log("Текущий пользователь:", currentUser.username);
         if (username === currentUser.username) {
-            return res.status(400).send("Новый логин совпадает с текущим");
+            req.flash('error', 'Новый логин совпадает с текущим');
+            return res.redirect('/user/edit');
+            //return res.status(400).send("Новый логин совпадает с текущим");
         }
 
         const user = await User.findOne({ username });
 
         if (user) {
-            return res.status(400).send("Пользователь с таким логином уже существует");
+            req.flash('error', 'Пользователь с таким логином уже существует');
+            return res.redirect('/user/edit');
+            // return res.status(400).send("Пользователь с таким логином уже существует");
+        }
+        // console.log(`Обновляем логин пользователя ${currentUser.username} на ${username}`);
+        const result = await User.updateOne(
+            { username: currentUser.username },
+            { $set: { username: username } }
+        );
+        // console.log("Результат обновления:", result);
+        if (result.nModified === 0) {
+            return res.status(400).send("Ошибка обновления, пользователь не был найден");
+        }
+        res.redirect("/user");
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Ошибка сервера");
+    }
+});
+
+app.put("/user/edit", authMiddleware, async (req, res) => {
+    try {
+        const { username } = req.body;
+        const currentUser = await User.findById(req.user.id, { username: 1 });
+        // console.log("Текущий пользователь:", currentUser.username);
+        if (username === currentUser.username) {
+            req.flash('error', 'Новый логин совпадает с текущим');
+            return res.redirect('/user/edit');
+            //return res.status(400).send("Новый логин совпадает с текущим");
+        }
+
+        const user = await User.findOne({ username });
+
+        if (user) {
+            req.flash('error', 'Пользователь с таким логином уже существует');
+            return res.redirect('/user/edit');
+            // return res.status(400).send("Пользователь с таким логином уже существует");
         }
         // console.log(`Обновляем логин пользователя ${currentUser.username} на ${username}`);
         const result = await User.updateOne(
@@ -119,7 +189,9 @@ app.post("/user/order", authMiddleware, async (req, res) => {
         }
 
         if(arrOrder.length == 0) {
-            return res.status(400).send("Заказ не может быть пустым");
+            req.flash('error', 'Заказ не может быть пустым');
+            return res.redirect('/user/order');
+            // return res.status(400).send("Заказ не может быть пустым");
         }
         
         const currentUser = await User.findById(req.user.id);
@@ -130,11 +202,12 @@ app.post("/user/order", authMiddleware, async (req, res) => {
             client_id: currentUser._id,
             order: arrOrder,
             price: totalPrice,
+            status: "Processing",
             created_at: new Date(),
             updated_at: new Date()
         });
 
-            await newOrder.save();
+        await newOrder.save();
 
 
         // console.log(currentUser._id);
@@ -145,8 +218,29 @@ app.post("/user/order", authMiddleware, async (req, res) => {
         // console.log(cheeseburgerDb.price, req.body.cheeseburger);
         // console.log(friesDb.price, req.body.fries);
         // console.log(nuggetsDb.price, req.body.nuggets);
+        req.flash('success', 'Заказ успешно оформлен');
+        return res.redirect("/user");
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Ошибка сервера");
+    }
+});
 
-        res.redirect("/user");
+app.delete("/user/edit/delete", authMiddleware, async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.user.id);
+        await User.deleteOne({_id: currentUser._id});
+        res.clearCookie("token");
+        res.status(200).send("Аккаунт удален");
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Ошибка сервера");
+    }
+});
+
+app.get("/user/edit/delete", authMiddleware, async (req, res) => {
+    try {
+        res.render("user_edit_delete");
     } catch (err) {
         console.log(err);
         res.status(500).send("Ошибка сервера");
@@ -155,7 +249,8 @@ app.post("/user/order", authMiddleware, async (req, res) => {
 
 
 app.get("/login", (req, res) => {
-    res.sendFile(path.join(__dirname, './public/login.html')); // Путь к login.html
+    res.render("login");
+    // res.sendFile(path.join(__dirname, './public/login.html')); // Путь к login.html
 });
 
 app.get("/user", authMiddleware, async (req, res) => {
@@ -190,7 +285,8 @@ app.get("/user/order", authMiddleware, async (req, res) => {
 
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.render("index");
+    // res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get("/logout", (req, res) => {

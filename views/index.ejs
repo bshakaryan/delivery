@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная страница</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 40px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2rem;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px auto;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .alert-danger p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .alert-danger .icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <% if (error_messages.length > 0) { %>
+        <div class="alert-danger">
+            <div>
+                <% error_messages.forEach(function(message) { %>
+                    <p><%= message %></p>
+                <% }) %>
+            </div>
+        </div>
+    <% } %>
+    
+    <div class="container">
+        <h1>Добро пожаловать</h1>
+        <p>Пожалуйста, выберите действие:</p>
+        <a href="/register" class="btn">Регистрация</a>
+        <a href="/login" class="btn">Вход</a>
+    </div>
+
+</body>
+
+</html>
