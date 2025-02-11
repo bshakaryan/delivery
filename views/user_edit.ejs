@@ -66,7 +66,7 @@
         }
 
         .edit-container {
-            max-width: 400px;
+            max-width: 600px;
             margin: 50px auto;
             background-color: white;
             padding: 20px;
@@ -129,7 +129,7 @@
         <a href="/logout">Выйти</a>
     </nav> -->
 
-    <div class="edit-container">
+    <div class="edit-container" style="width: 400px;">
         <% if (error_messages.length> 0) { %>
             <div class="alert-danger">
                 <div>
@@ -141,12 +141,32 @@
                 </div>
             </div>
         <% } %>
+        <h1 style="text-align: center;">Данные</h1>
+        <br>
+        <h4> Имя</h4>
+        <input type="text" placeholder= "<%= user.name %>" readonly>
+        <h4> Логин </h4>
+        <input type="text" placeholder= "<%= user.username %>" readonly>
+        <h4> Email </h4>
+        <input type="text" placeholder= "<%= user.email %>" readonly>
+        <h4> Адрес </h4>
+        <input type="text" placeholder= "<%= user.address %>" readonly>
+        <h4> Телефон </h4>
+        <input type="text" placeholder= "<%= user.phone %>" readonly>
+        
+        <h1 style="text-align: center;">Сменить аватарку</h1>
+        <br>
+        <form action="/user/edit/avatar" method="POST" enctype="multipart/form-data">
+            <input type="file" name="avatar" accept="image/*" required>
+            <button type="submit">Загрузить</button>
+        </form>
+        <br>
         <h1 style="text-align: center;">Сменить логин</h1>
         <form action="/user/edit" method="POST" style="margin-top: 15px;">
-            <input type="hidden" name="_method" value="PUT">
             <input type="text" name="username" placeholder="Новый логин" required>
             <button type="submit">Изменить</button>
         </form>
+
         <form action="/user/edit/delete" method="GET" style="display: inline;">
             <button type="submit" style="margin-top: 10px; background-color: red; color: white; border: none; padding: 5px 10px; cursor: pointer;">
                 Удалить аккаунт

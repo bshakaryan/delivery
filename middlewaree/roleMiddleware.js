@@ -9,9 +9,16 @@ module.exports = function (roles) {
         }
 
         try {
+            if (!req.headers.authorization) {
+                req.flash('error', '1 Пользователь не авторизован');
+                return res.redirect('/');
+            }
+
             const token = req.headers.authorization.split(' ')[1]
             if (!token) {
-                return res.status(403).json({message: "TOKEN: Пользователь не авторизован"})
+                req.flash('error', '2 Пользователь не авторизован');
+                return res.redirect()
+                // return res.status(403).json({message: "TOKEN: Пользователь не авторизован"})
             }
         
             const {roles: userRoles} = jwt.verify(token, secret);
@@ -22,12 +29,16 @@ module.exports = function (roles) {
                 }
             })
             if (!hasRole) {
-                return res.status(403).json({message: "У вас нет доступа"})
+                req.flash('error', 'У вас нет доступа');
+                return res.redirect('/user');
+                // return res.status(403).json({message: "У вас нет доступа"})
             }
             next();
         } catch (e) {
             console.log(e.name);
-            return res.status(403).json({message: "OTHER: Пользователь не авторизован"})
+            req.flash('error', 'CATCH Пользователь не авторизован');
+            return res.redirect('/');
+            // return res.status(403).json({message: "OTHER: Пользователь не авторизован"})
         }
     }
 };

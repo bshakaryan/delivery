@@ -104,31 +104,36 @@
                 <div class="card">
                     <img src="/images/pizza.jpg" alt="Пицца">
                     <h3>Пицца</h3>
-                    <p>Вкусная итальянская пицца</p>
+                    <p> <%= pizzaDb.dish_description %> </p>
+                    <h3> <%= pizzaDb.price %> ₸ </h3>
                     <input type="number" name="pizza" class="quantity" min="0" value="0">
                 </div>
                 <div class="card">
                     <img src="/images/hamburger.jpg" alt="Гамбургер">
                     <h3>Гамбургер</h3>
-                    <p>Сочный бургер с говядиной</p>
+                    <p> <%= hamburgerDb.dish_description %> </p>
+                    <h3> <%= hamburgerDb.price %> ₸ </h3>
                     <input type="number" name="hamburger" class="quantity" min="0" value="0">
                 </div>
                 <div class="card">
                     <img src="/images/cheeseburger.jpg" alt="Чизбургер">
-                    <h3>Чизбургер</h3>
-                    <p>Сырный бургер</p>
+                    <h3> Чизбургер </h3>
+                    <p> <%= cheeseburgerDb.dish_description %> </p>
+                    <h3> <%= cheeseburgerDb.price %> ₸ </h3>
                     <input type="number" name="cheeseburger" class="quantity" min="0" value="0">
                 </div>
                 <div class="card">
                     <img src="/images/fries.jpg" alt="Картошка фри">
-                    <h3>Картошка фри</h3>
-                    <p>Хрустящая картошка</p>
+                    <h3>Картофель Фри</h3>
+                    <p> <%= friesDb.dish_description %> </p>
+                    <h3> <%= friesDb.price %> ₸ </h3>
                     <input type="number" name="fries" class="quantity" min="0" value="0">
                 </div>
                 <div class="card">
                     <img src="/images/nuggets.jpg" alt="Наггетсы">
                     <h3>Наггетсы</h3>
-                    <p>Куриные наггетсы</p>
+                    <p> <%= nuggetsDb.dish_description %> </p>
+                    <h3> <%= nuggetsDb.price %> ₸ </h3>
                     <input type="number" name="nuggets" class="quantity" min="0" value="0">
                 </div>
             </div>
@@ -136,6 +141,40 @@
             <br>
             <a href="/user" class="back-button">Назад</a>
         </form>
+        <div class="total-container">
+            <h3>Общая сумма: <span id="total-price">0</span> ₸</h3>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const quantities = document.querySelectorAll(".quantity");
+                const totalPriceElement = document.getElementById("total-price");
+        
+                function updateTotal() {
+                    let total = 0;
+                    document.querySelectorAll(".card").forEach(card => {
+                        const quantity = card.querySelector(".quantity").value;
+                        const price = parseFloat(card.querySelector("h3:nth-of-type(2)").textContent.replace("₸", "").trim());
+                        total += quantity * price;
+                    });
+        
+                    totalPriceElement.textContent = total;
+                }
+        
+                quantities.forEach(input => {
+                    input.addEventListener("input", updateTotal);
+                });
+        
+                updateTotal();
+            });
+        </script>
+        
+        <style>
+            .total-container {
+                margin: 20px 0;
+                font-size: 1.2rem;
+                font-weight: bold;
+            }
+        </style>
     </div>
 </body>
 </html>

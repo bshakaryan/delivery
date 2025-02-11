@@ -16,7 +16,11 @@ const Dish = require("./models/Dish");
 const flash = require('connect-flash');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const multer = require('multer');
 const methodOverride = require('method-override');
+const roleMiddleware = require('./middlewaree/roleMiddleware');
+const upload = require('./middlewaree/upload');
+const checkRoleMiddleware = require('./middlewaree/checkRoleMiddleware');
 require('dotenv').config();
 
 app.use(flash());
@@ -39,10 +43,6 @@ app.use((req, res, next) => {
     res.locals.error_messages = req.flash('error');
     next();
 });
-// app.use((req, res, next) => {
-//     console.log(req.method);
-//     next();
-// });
 
 mongoose.connect(process.env.URI, {
     useNewUrlParser: true,
@@ -83,6 +83,22 @@ app.post("/login", async (req, res) => {
 
         res.cookie("token", token, { httpOnly: true }); // Убедись, что cookie передается
         res.redirect("/user"); // Редирект на страницу пользователя
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Ошибка сервера");
+    }
+});
+
+app.post("/user/edit/avatar", authMiddleware, upload.single("avatar"), async (req, res) => {
+    try {
+        if (!req.file) {
+            req.flash('error', 'Файл не загружен');
+            return res.redirect('/user/edit');
+        }
+
+        await User.findByIdAndUpdate(req.user.id, {avatar: "/uploads/" + req.file.filename});
+
+        res.redirect("/user");
     } catch (err) {
         console.log(err);
         res.status(500).send("Ошибка сервера");
@@ -253,10 +269,74 @@ app.get("/login", (req, res) => {
     // res.sendFile(path.join(__dirname, './public/login.html')); // Путь к login.html
 });
 
+app.get("/login_admin", (req, res) => {
+    res.render("login_admin");
+});
+
+app.post("/login_admin", async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const user = await User.findOne({ username });
+
+        if (username !== "admin") {
+            req.flash('error', 'Вход запрещен');
+            return res.redirect('/');
+        }
+
+        if (!user) {
+            req.flash('error', 'Пользователь не найден');
+            return res.redirect('/');
+            // return res.status(400).send("Пользователь не найден");
+        }
+
+        const validPassword = bcrypt.compareSync(password, user.password);
+        if (!validPassword) {
+            req.flash('error', 'Неверный пароль');
+            return res.redirect('/');
+            // return res.status(400).send("Неверный пароль");
+        }
+
+        const token = jwt.sign({ id: user._id, roles: user.roles }, secret, { expiresIn: "24h" });
+        res.cookie("token", token, { httpOnly: true }); // Убедись, что cookie передается
+        res.redirect("/admin"); // Редирект на страницу пользователя
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Ошибка сервера");
+    }
+});
+
+app.get("/admin", authMiddleware, checkRoleMiddleware(["ADMIN"]), async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        const ordersDb = await Order.find().sort({createdAt: 1});
+        res.render("admin", {user, ordersDb});
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Ошибка сервера");
+    }
+});
+
+app.post("/admin", authMiddleware, checkRoleMiddleware(["ADMIN"]), async (req, res) => {
+    try {
+        const { orderId, status } = req.body;
+        await Order.findByIdAndUpdate(orderId, { status });
+
+        // const user = req.user;
+        // const ordersDb = await Order.find().sort({createdAt: 1});
+
+        // res.render("admin", {user, ordersDb});
+        res.json({ success: true, message: "Статус обновлен" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Ошибка сервера" });
+    }
+});
+
 app.get("/user", authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
-        res.render("user", { user });
+        const ordersDb = await Order.find({client_id: req.user.id}).sort({createdAt: 1});
+        res.render("user", { user, ordersDb });
     } catch (err) {
         console.log(err);
         res.status(500).send("Ошибка сервера");
@@ -275,8 +355,13 @@ app.get("/user/edit", authMiddleware, async (req, res) => {
 
 app.get("/user/order", authMiddleware, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
-        res.render("user_order", { user });
+        const hamburgerDb = await Dish.findOne({ dish_name: "hamburger" });
+        const cheeseburgerDb = await Dish.findOne({ dish_name: "cheeseburger" });
+        const pizzaDb = await Dish.findOne({ dish_name: "pizza" });
+        const friesDb = await Dish.findOne({ dish_name: "fries" });
+        const nuggetsDb = await Dish.findOne({ dish_name: "nuggets" });
+
+        res.render("user_order", { hamburgerDb, cheeseburgerDb, pizzaDb, friesDb, nuggetsDb });
     } catch (err) {
         console.log(err);
         res.status(500).send("Ошибка сервера");

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #f4f4f9;
+            font-family: 'Arial', sans-serif;
+        }
+
+        nav {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #007bff;
+            border-radius: 8px;
+            padding: 10px 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #ffd700;
+            text-decoration: underline;
+        }
+
+        nav a:active {
+            color: #ff4500;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .action-buttons a {
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .action-buttons a:hover {
+            background-color: #218838;
+        }
+
+        .action-buttons a:active {
+            background-color: #1e7e34;
+        }
+
+        .alert-success {
+            background-color: #d7f8e5;
+            color: #1c722d;
+            border: 1px solid #edf5c6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px auto;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            /* Обеспечивает, что сообщение будет поверх всего остального */
+        }
+
+        .alert-success p {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Чтобы избежать перекрытия содержимого */
+        .container {
+            margin-top: 80px;
+            /* Делаем отступ сверху, чтобы сообщение не перекрывало текст */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+    <style>
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px auto;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .alert-danger p {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav>
+            <a href="/logout">Выйти</a>
+        </nav>
+
+
+        <h1 style="text-align: center;">Добро пожаловать, <%= user.name %> </h1>
+        <br>
+        <!-- <div class="action-buttons">
+            <a href="/user/edit">Редактировать профиль</a>
+            <a href="/user/order">Оформить заказ</a>
+        </div> -->
+        <br>
+        <h2>Заказы</h2>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Номер</th>
+                        <th>Клиент</th>
+                        <th>Детали</th>
+                        <th>Цена</th>
+                        <th>Статус</th>
+                        <th>Дата</th>
+                        <th>Изменить</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for(let i=0; i < ordersDb.length; i++) { %>
+                        <tr>
+                            <td>
+                                <%= i + 1 %>
+                            </td>
+                            <td>
+                                <%= ordersDb[i].client_id%>
+                            </td>
+                            <td>
+                                <% for(let j=0; j < ordersDb[i].order.length; j++) { %>
+                                    <p>
+                                        <%= ordersDb[i].order[j].dish_name %> x <%= ordersDb[i].order[j].quantity %>
+                                    </p>
+                                    <% } %>
+                            </td>
+                            <td>
+                                <%= ordersDb[i].price %> ₸
+                            </td>
+                            <td>
+                                <%= ordersDb[i].status %>
+                            </td>
+                            <td>
+                                <%= ("0" + ordersDb[i].createdAt.getDate()).slice(-2) + "/" + ("0" +
+                                    (ordersDb[i].createdAt.getMonth() + 1)).slice(-2) + "/" +
+                                    ordersDb[i].createdAt.getFullYear() + " " + ("0" +
+                                    ordersDb[i].createdAt.getHours()).slice(-2) + ":" + ("0" +
+                                    ordersDb[i].createdAt.getMinutes()).slice(-2) + ":" + ("0" +
+                                    ordersDb[i].createdAt.getSeconds()).slice(-2) %>
+                            </td>
+                            <td>
+                                <button onclick="updateStatus('<%= ordersDb[i]._id %>', 'Processing')">В обработке</button>
+                                <button onclick="updateStatus('<%= ordersDb[i]._id %>', 'Cooking')">Готовится</button>
+                                <button onclick="updateStatus('<%= ordersDb[i]._id %>', 'Done')">Готово</button>
+                            </td>
+                        </tr>
+                        <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function updateStatus(orderId, status) {
+            fetch('/admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orderId, status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`status-${orderId}`).textContent = status; // Меняем статус в таблице
+                    window.location.reload();
+                } else {
+                    alert("Ошибка при обновлении статуса!");
+                }
+            })
+            .catch(error => console.error("Ошибка:", error));
+        }
+    </script>    
+</body>
+
+</html>

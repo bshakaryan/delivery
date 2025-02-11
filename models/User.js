@@ -30,6 +30,10 @@ const UserSchema = new Schema({
         type: String,
         required: true,
     },
+    avatar: {
+        type: String,
+        default: "/uploads/default-avatar.jpg"
+    },
     orders: [{
         type: Number,
     }]
