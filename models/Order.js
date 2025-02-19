@@ -40,25 +40,13 @@ const OrderSchema = new Schema({
         type: String,
         required: true
     },
+    expiresAt: {
+        type: Date,
+        index: {
+            expires: 0
+        },
+        default: null
+    },
 }, { timestamps: true });
 
 module.exports = model('Order', OrderSchema);
-
-
-// {
-//     _id: 122123,
-//     client_id: Id(1),
-//     order: [
-//         {
-//             dish_name: "Burger",
-//             quantity: 1
-//         }
-//         {
-//             dish_name: "Fries",
-//             quantity: 2
-//         }
-//     ]
-//     price: 12.59
-//     created_at: new Date()
-//     updated_at: new Date()
-// }

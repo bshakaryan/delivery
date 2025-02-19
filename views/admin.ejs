@@ -18,11 +18,14 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            background-color: #007bff;
+            /* background-color: #007bff; */
             border-radius: 8px;
             padding: 10px 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 20px;
         }
+
 
         nav a {
             color: white;
@@ -123,6 +126,14 @@
         tr:hover {
             background-color: #f1f1f1;
         }
+
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Центрирует содержимое */
+            width: 100%;
+        }
     </style>
     <style>
         .alert-danger {
@@ -143,6 +154,36 @@
             margin: 0;
             padding: 0;
         }
+
+        .stats-button {
+            background-color: #28a745;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .stats-button:hover {
+            background-color: #218838;
+        }
+
+        .logout-button {
+            background-color: #dc3545;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            margin-left: 20px;
+            /* Отделяем кнопку */
+            transition: background-color 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: #c82333;
+        }
     </style>
 
 </head>
@@ -150,19 +191,17 @@
 <body>
     <div class="wrapper">
         <nav>
-            <a href="/logout">Выйти</a>
+            <a href="/admin/statistics" class="stats-button">Статистика</a>
+            <a href="/logout" class="logout-button">Выйти</a>
         </nav>
 
 
-        <h1 style="text-align: center;">Добро пожаловать, <%= user.name %> </h1>
-        <br>
-        <!-- <div class="action-buttons">
-            <a href="/user/edit">Редактировать профиль</a>
-            <a href="/user/order">Оформить заказ</a>
-        </div> -->
+
+        <h1 style="text-align: center;">Добро пожаловать, <%= user.name %>
+        </h1>
         <br>
         <h2>Заказы</h2>
-        <div>
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
@@ -206,38 +245,30 @@
                                     ordersDb[i].createdAt.getSeconds()).slice(-2) %>
                             </td>
                             <td>
-                                <button onclick="updateStatus('<%= ordersDb[i]._id %>', 'Processing')">В обработке</button>
+                                <!-- <button onclick="updateStatus('<%= ordersDb[i]._id %>', 'Processing')">В
+                                    обработке</button>
                                 <button onclick="updateStatus('<%= ordersDb[i]._id %>', 'Cooking')">Готовится</button>
-                                <button onclick="updateStatus('<%= ordersDb[i]._id %>', 'Done')">Готово</button>
+                                <button onclick="updateStatus('<%= ordersDb[i]._id %>', 'Done')">Готово</button> -->
+                                <a href="/admin/edit-order/<%= ordersDb[i]._id %>">
+                                    <button> Изменить </button>
+                                </a>
                             </td>
                         </tr>
                         <% } %>
                 </tbody>
             </table>
         </div>
+        <br>
+        <div class="pagination" style="text-align: center;">
+            <% if (currentPage> 1) { %>
+                <a href="/admin?page=<%= currentPage - 1 %>&limit=10">Назад</a>
+                <% } %>
+                    <span>Страница <%= currentPage %> из <%= totalPages %></span>
+                    <% if (currentPage < totalPages) { %>
+                        <a href="/admin?page=<%= currentPage + 1 %>&limit=10">Вперед</a>
+                        <% } %>
+        </div>
     </div>
-
-    <script>
-        function updateStatus(orderId, status) {
-            fetch('/admin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ orderId, status })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById(`status-${orderId}`).textContent = status; // Меняем статус в таблице
-                    window.location.reload();
-                } else {
-                    alert("Ошибка при обновлении статуса!");
-                }
-            })
-            .catch(error => console.error("Ошибка:", error));
-        }
-    </script>    
 </body>
 
 </html>

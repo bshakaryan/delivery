@@ -74,9 +74,9 @@ a:hover {
     text-decoration: underline;
 }
 
-.wrapper {
+/* .wrapper {
     width: 100%;
     /* max-width: ; Чтобы не было слишком узко */
     padding: 30px;
     margin: 30px auto; /* Центрируем по горизонтали */
-}
+} */

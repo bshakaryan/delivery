@@ -18,21 +18,3 @@ const DishSchema = new Schema({
 
 module.exports = model('Dish', DishSchema);
 
-
-// {
-//     _id: 122123,
-//     client_id: Id(1),
-//     order: [
-//         {
-//             dish_name: "Burger",
-//             quantity: 1
-//         }
-//         {
-//             dish_name: "Fries",
-//             quantity: 2
-//         }
-//     ]
-//     price: 12.59
-//     created_at: new Date()
-//     updated_at: new Date()
-// }

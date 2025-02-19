@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аналитика</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            margin: 0;
+            background-color: #f4f4f9;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .action-buttons a {
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .action-buttons a:hover {
+            background-color: #218838;
+        }
+
+        .action-buttons a:active {
+            background-color: #1e7e34;
+        }
+
+        .alert-success {
+            background-color: #d7f8e5;
+            color: #1c722d;
+            border: 1px solid #edf5c6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px auto;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            /* Обеспечивает, что сообщение будет поверх всего остального */
+        }
+
+        .alert-success p {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Чтобы избежать перекрытия содержимого */
+        .container {
+            margin-top: 80px;
+            /* Делаем отступ сверху, чтобы сообщение не перекрывало текст */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Центрирует содержимое */
+            width: 100%;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 800px;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .wrapper {
+            width: 100%;
+            /* max-width: ; Чтобы не было слишком узко */
+            padding: 30px;
+            margin: 30px auto;
+            /* Центрируем по горизонтали */
+        }
+    </style>
+    <style>
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px auto;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .alert-danger p {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav>
+            <h1 style="margin: 0;"> Аналитика </h1>
+        </nav>
+
+        <% if (error_messages.length> 0) { %>
+            <div class="alert-danger">
+                <div>
+                    <% error_messages.forEach(function(message) { %>
+                        <p>
+                            <%= message %>
+                        </p>
+                        <% }) %>
+                </div>
+            </div>
+            <% } %>
+                <div style="display: flex; justify-content: center; margin-top: 15px; width: 100%;">
+                    <div style="text-align: center;">
+                        <h1>Аналитика по пользователю</h1>
+                        <form id="statisticsForm" method="GET" style="width: 300px; margin: 0 auto;">
+                            <input type="text" id="username" name="username" placeholder="Введите логин" required
+                                style="width: 100%; padding: 10px; margin-bottom: 10px;">
+                            <button type="submit" style="width: 100%; padding: 10px;">Отправить</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: center; margin-top: 20px;">
+                    <button type="button" onclick="window.location.href='/admin/statistics/top'"
+                        style="padding: 12px 20px; border: none; background-color: #007BFF; color: white; border-radius: 5px; cursor: pointer;">Аналитика
+                        по датам</button>
+                </div>
+
+                <br>
+                
+                <script>
+                    document.getElementById("statisticsForm").addEventListener("submit", function (event) {
+                        event.preventDefault();
+
+                        const username = document.getElementById("username").value;
+                        const url = `/admin/statistics/${username}`;
+
+                        window.location.href = url;
+                    });
+                </script>
+
+                <div class="action-buttons">
+                    <a href="/admin">Назад</a>
+                </div>
+    </div>
+
+</body>
+
+</html>

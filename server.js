@@ -17,7 +17,6 @@ const flash = require('connect-flash');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const multer = require('multer');
-const methodOverride = require('method-override');
 const roleMiddleware = require('./middlewaree/roleMiddleware');
 const upload = require('./middlewaree/upload');
 const checkRoleMiddleware = require('./middlewaree/checkRoleMiddleware');
@@ -32,7 +31,6 @@ app.use("/auth", authRouter);
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
-app.use(methodOverride('_method'));
 app.use(session({
     secret: 'your-secret-key',  // Секрет для сессий
     resave: false,
@@ -44,15 +42,15 @@ app.use((req, res, next) => {
     next();
 });
 
+
 mongoose.connect(process.env.URI, {
     useNewUrlParser: true,
-})
-    .then(() => console.log('MongoDB connected'))
-    .catch((err) => console.log(err));
+}).then(() => console.log('MongoDB connected')).catch((err) => console.log(err));
+
 
 app.post('/register', authController.registration);
 
-app.get('/register', async(req, res) => {
+app.get('/register', async (req, res) => {
     try {
         res.render('register');
     } catch (err) {
@@ -96,42 +94,8 @@ app.post("/user/edit/avatar", authMiddleware, upload.single("avatar"), async (re
             return res.redirect('/user/edit');
         }
 
-        await User.findByIdAndUpdate(req.user.id, {avatar: "/uploads/" + req.file.filename});
+        await User.findByIdAndUpdate(req.user.id, { avatar: "/uploads/" + req.file.filename });
 
-        res.redirect("/user");
-    } catch (err) {
-        console.log(err);
-        res.status(500).send("Ошибка сервера");
-    }
-});
-
-app.post("/user/edit", authMiddleware, async (req, res) => {
-    try {
-        const { username } = req.body;
-        const currentUser = await User.findById(req.user.id, { username: 1 });
-        // console.log("Текущий пользователь:", currentUser.username);
-        if (username === currentUser.username) {
-            req.flash('error', 'Новый логин совпадает с текущим');
-            return res.redirect('/user/edit');
-            //return res.status(400).send("Новый логин совпадает с текущим");
-        }
-
-        const user = await User.findOne({ username });
-
-        if (user) {
-            req.flash('error', 'Пользователь с таким логином уже существует');
-            return res.redirect('/user/edit');
-            // return res.status(400).send("Пользователь с таким логином уже существует");
-        }
-        // console.log(`Обновляем логин пользователя ${currentUser.username} на ${username}`);
-        const result = await User.updateOne(
-            { username: currentUser.username },
-            { $set: { username: username } }
-        );
-        // console.log("Результат обновления:", result);
-        if (result.nModified === 0) {
-            return res.status(400).send("Ошибка обновления, пользователь не был найден");
-        }
         res.redirect("/user");
     } catch (err) {
         console.log(err);
@@ -143,33 +107,34 @@ app.put("/user/edit", authMiddleware, async (req, res) => {
     try {
         const { username } = req.body;
         const currentUser = await User.findById(req.user.id, { username: 1 });
-        // console.log("Текущий пользователь:", currentUser.username);
+
+        if (!currentUser) {
+            return res.status(400).json({ error: "Пользователь не найден" });
+        }
+
         if (username === currentUser.username) {
-            req.flash('error', 'Новый логин совпадает с текущим');
-            return res.redirect('/user/edit');
-            //return res.status(400).send("Новый логин совпадает с текущим");
+            return res.status(400).json({ error: "Новый логин совпадает с текущим" });
         }
 
-        const user = await User.findOne({ username });
+        const existingUser = await User.findOne({ username });
 
-        if (user) {
-            req.flash('error', 'Пользователь с таким логином уже существует');
-            return res.redirect('/user/edit');
-            // return res.status(400).send("Пользователь с таким логином уже существует");
+        if (existingUser) {
+            return res.status(400).json({ error: "Пользователь с таким логином уже существует" });
         }
-        // console.log(`Обновляем логин пользователя ${currentUser.username} на ${username}`);
+
         const result = await User.updateOne(
-            { username: currentUser.username },
+            { _id: req.user.id },
             { $set: { username: username } }
         );
-        // console.log("Результат обновления:", result);
-        if (result.nModified === 0) {
-            return res.status(400).send("Ошибка обновления, пользователь не был найден");
+
+        if (result.modifiedCount === 0) {
+            return res.status(400).json({ error: "Ошибка обновления, пользователь не был найден" });
         }
-        res.redirect("/user");
+
+        res.json({ message: "Логин успешно изменен", redirect: "/user" });
     } catch (err) {
         console.log(err);
-        res.status(500).send("Ошибка сервера");
+        res.status(500).json({ error: "Ошибка сервера" });
     }
 });
 
@@ -189,30 +154,30 @@ app.post("/user/order", authMiddleware, async (req, res) => {
 
         const arrOrder = [];
         if (Number(req.body.hamburger) > 0) {
-            arrOrder.push({dish_id: hamburgerDb._id, dish_name: hamburgerDb.dish_name, quantity: Number(req.body.hamburger), price_per_item: hamburgerDb.price, total: Number(req.body.hamburger) * hamburgerDb.price});
+            arrOrder.push({ dish_id: hamburgerDb._id, dish_name: hamburgerDb.dish_name, quantity: Number(req.body.hamburger), price_per_item: hamburgerDb.price, total: Number(req.body.hamburger) * hamburgerDb.price });
         }
         if (Number(req.body.cheeseburger) > 0) {
-            arrOrder.push({dish_id: cheeseburgerDb._id, dish_name: cheeseburgerDb.dish_name, quantity: Number(req.body.cheeseburger), price_per_item: cheeseburgerDb.price, total: Number(req.body.cheeseburger) * cheeseburgerDb.price});
+            arrOrder.push({ dish_id: cheeseburgerDb._id, dish_name: cheeseburgerDb.dish_name, quantity: Number(req.body.cheeseburger), price_per_item: cheeseburgerDb.price, total: Number(req.body.cheeseburger) * cheeseburgerDb.price });
         }
         if (Number(req.body.fries) > 0) {
-            arrOrder.push({dish_id: friesDb._id, dish_name: friesDb.dish_name, quantity: Number(req.body.fries), price_per_item: friesDb.price, total: Number(req.body.fries) * friesDb.price});
+            arrOrder.push({ dish_id: friesDb._id, dish_name: friesDb.dish_name, quantity: Number(req.body.fries), price_per_item: friesDb.price, total: Number(req.body.fries) * friesDb.price });
         }
         if (Number(req.body.pizza) > 0) {
-            arrOrder.push({dish_id: pizzaDb._id, dish_name: pizzaDb.dish_name, quantity: Number(req.body.pizza), price_per_item: pizzaDb.price, total: Number(req.body.pizza) * pizzaDb.price});
+            arrOrder.push({ dish_id: pizzaDb._id, dish_name: pizzaDb.dish_name, quantity: Number(req.body.pizza), price_per_item: pizzaDb.price, total: Number(req.body.pizza) * pizzaDb.price });
         }
         if (Number(req.body.nuggets) > 0) {
-            arrOrder.push({dish_id: nuggetsDb._id, dish_name: nuggetsDb.dish_name, quantity: Number(req.body.nuggets), price_per_item: nuggetsDb.price, total: Number(req.body.nuggets) * nuggetsDb.price});
+            arrOrder.push({ dish_id: nuggetsDb._id, dish_name: nuggetsDb.dish_name, quantity: Number(req.body.nuggets), price_per_item: nuggetsDb.price, total: Number(req.body.nuggets) * nuggetsDb.price });
         }
 
-        if(arrOrder.length == 0) {
+        if (arrOrder.length == 0) {
             req.flash('error', 'Заказ не может быть пустым');
             return res.redirect('/user/order');
             // return res.status(400).send("Заказ не может быть пустым");
         }
-        
+
         const currentUser = await User.findById(req.user.id);
 
-        const currentOrder = await Order.find({client_id: currentUser._id});
+        const currentOrder = await Order.find({ client_id: currentUser._id });
 
         const newOrder = new Order({
             client_id: currentUser._id,
@@ -242,10 +207,41 @@ app.post("/user/order", authMiddleware, async (req, res) => {
     }
 });
 
+app.get("/admin/statistics/top", authMiddleware, checkRoleMiddleware(["ADMIN"]), async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        const topDishes = await Order.aggregate([
+            { 
+                $match: { createdAt: { $gte: start, $lte: end } } 
+            },
+            { $unwind: "$order" },
+            {
+                $group: {
+                    _id: "$order.dish_name",
+                    totalSold: { $sum: "$order.quantity" },
+                    totalRevenue: { $sum: "$order.total" }
+                }
+            },
+            { $sort: { totalSold: -1 } },
+            { $limit: 10 }
+        ]);
+
+        const totalRevenue = topDishes.reduce((sum, dish) => sum + dish.totalRevenue, 0);
+
+        res.render('admin_statistics_top', { topDishes, totalRevenue, startDate, endDate });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Ошибка сервера");
+    }
+});
+
 app.delete("/user/edit/delete", authMiddleware, async (req, res) => {
     try {
         const currentUser = await User.findById(req.user.id);
-        await User.deleteOne({_id: currentUser._id});
+        await User.deleteOne({ _id: currentUser._id });
         res.clearCookie("token");
         res.status(200).send("Аккаунт удален");
     } catch (err) {
@@ -308,8 +304,24 @@ app.post("/login_admin", async (req, res) => {
 app.get("/admin", authMiddleware, checkRoleMiddleware(["ADMIN"]), async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
-        const ordersDb = await Order.find().sort({createdAt: 1});
-        res.render("admin", {user, ordersDb});
+
+        let page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 10;
+        limit = 5;
+        let skip = (page - 1) * limit;
+
+
+        const ordersDb = await Order.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
+        const totalOrders = await Order.countDocuments();
+
+        res.render("admin", {
+            user,
+            ordersDb,
+            currentPage:
+                page,
+            totalPages: Math.ceil(totalOrders / limit),
+        });
+
     } catch (err) {
         console.log(err);
         res.status(500).send("Ошибка сервера");
@@ -332,10 +344,63 @@ app.post("/admin", authMiddleware, checkRoleMiddleware(["ADMIN"]), async (req, r
     }
 });
 
+app.get("/admin/edit-order/:id", authMiddleware, checkRoleMiddleware(["ADMIN"]), async(req, res) => {
+    try {
+        const orderId = req.params.id;
+        const order = await Order.findById(orderId);
+        
+        if (!order) {
+            req.flash('error', 'Такого заказа не существует');
+            return res.redirect("/admin/statistics");
+        }
+
+        res.render("admin_edit-order", {orderId, order});
+    } catch(err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Ошибка сервера" });
+    }
+});
+
+app.put("/admin/edit-order/:id", authMiddleware, checkRoleMiddleware(["ADMIN"]), async(req, res) => {
+    try {
+        const orderId = req.params.id;
+        const { status } = req.body;
+
+        if (!status) {
+            req.flash('error', 'Статус не указан');
+            return res.redirect("/admin/statistics");
+        }
+        
+        
+        let updateData = {status};
+        
+        if (status === "Done") {
+            updateData.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        }
+
+        const updateOrder = await Order.findByIdAndUpdate(
+            orderId,
+            updateData,
+            {new: true}
+        );
+
+        if (!updateOrder) {
+            req.flash('error', 'Заказ не найден');
+            return res.redirect("/admin/statistics");
+        }
+
+        res.json({ success: true, message: "Статус обновлён" });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Ошибка сервера" });
+    }
+});
+
 app.get("/user", authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
-        const ordersDb = await Order.find({client_id: req.user.id}).sort({createdAt: 1});
+        const ordersDb = await Order.find({ client_id: req.user.id }).sort({ createdAt: 1 });
         res.render("user", { user, ordersDb });
     } catch (err) {
         console.log(err);
@@ -368,6 +433,101 @@ app.get("/user/order", authMiddleware, async (req, res) => {
     }
 });
 
+app.get("/admin/statistics", authMiddleware, checkRoleMiddleware(["ADMIN"]), async (req, res) => {
+    try {
+        res.render("admin_statistics");
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Ошибка сервера");
+    }
+});
+
+app.get("/admin/statistics/:username", authMiddleware, checkRoleMiddleware(["ADMIN"]), async (req, res) => {
+    try {
+        const USERNAME = req.params.username;
+
+        const check = await User.find({ username: USERNAME });
+        if (check.length == 0) {
+            req.flash('error', 'Пользователь не найден');
+            return res.redirect("/admin/statistics");
+        }
+
+        // console.log(check[0]._id);
+
+        const result = await Order.aggregate([
+            { $match: { client_id: check[0]._id } },
+            { $unwind: "$order" },
+            {
+                $lookup: {
+                    from: "dishes",
+                    localField: "order.dish_id",
+                    foreignField: "_id",
+                    as: "dishDetails"
+                }
+            },
+            { $unwind: "$dishDetails" },
+            {
+                $group: {
+                    _id: "$dishDetails.dish_name",
+                    totalQuantity: { $sum: "$order.quantity" },
+                    totalRevenue: { $sum: "$order.total" }
+                }
+            }
+        ]);
+
+        // console.log(result);
+
+        res.render("admin_user_statistics", { result });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Ошибка сервера");
+    }
+});
+
+app.put("/admin/edit-order/:id/add-gift", authMiddleware, checkRoleMiddleware(["ADMIN"]), async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const { gift } = req.body;
+
+        if (!gift.dish_id) {
+            gift.dish_id = new mongoose.Types.ObjectId();
+        }
+
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Заказ не найден" });
+        }
+
+        order.order.push(gift);
+
+        await order.save();
+
+        res.json({ success: true, message: "Комплемент добавлен!" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Ошибка сервера" });
+    }
+});
+
+app.delete("/admin/edit-order/:id", authMiddleware, checkRoleMiddleware(["ADMIN"]), async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const deletedOrder = await Order.findByIdAndDelete(orderId);
+
+        if (!deletedOrder) {
+            req.flash('error', "Заказ не найден");
+            return res.redirect("/admin/statistics");
+        }
+
+        res.json({ success: true, redirectUrl: "/admin" });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Ошибка сервера");
+    }
+});
+
 
 app.get('/', (req, res) => {
     res.render("index");
@@ -381,31 +541,3 @@ app.get("/logout", (req, res) => {
 
 const server = createServer(app);
 server.listen(process.env.PORT, () => console.log(`Server is up port: ${process.env.PORT}`));
-
-/*
-{
-    _id: 122123,
-    client_id: 1,
-        order: [
-            {
-                dish_id: 1,
-                quantity: 1
-            }
-            {
-                dish_id: 1,
-                quantity: 2
-            }
-        ]
-        price: 12.59
-        created_at: new Date()
-        updated_at: new Date()
-    ]
-}
-
-{
-    _id: 213,
-    dish_name: "pizza",
-    description: "nice pizza, cheese",
-    price: 12.49
-}
-*/

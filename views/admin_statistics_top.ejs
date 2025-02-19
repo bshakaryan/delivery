@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Топ популярных блюд</title>
+    <!-- <link rel="stylesheet" href="/styles.css"> -->
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        form {
+            margin: 20px auto;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+            text-align: left;
+        }
+
+        input[type="date"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            margin: 30px auto;
+            border-collapse: collapse;
+            width: 80%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #28a745;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tfoot th {
+            background-color: #2c3e50;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .back-button {
+            margin-top: 30px;
+        }
+
+        .back-button button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+
+        .back-button button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Топ популярных блюд</h1>
+
+    <!-- Форма выбора периода -->
+    <form method="GET" action="/admin/statistics/top">
+        <label for="startDate">Начальная дата:</label>
+        <input type="date" name="startDate" required value="<%= startDate %>">
+
+        <label for="endDate">Конечная дата:</label>
+        <input type="date" name="endDate" required value="<%= endDate %>">
+
+        <button type="submit">Показать статистику</button>
+    </form>
+
+    <!-- Таблица с результатами -->
+    <% if (topDishes.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Блюдо</th>
+                    <th>Продано (шт)</th>
+                    <th>Сумма (₸)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% topDishes.forEach(dish => { %>
+                    <tr>
+                        <td><%= dish._id %></td>
+                        <td><%= dish.totalSold %></td>
+                        <td><%= dish.totalRevenue.toLocaleString('ru-RU') %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="2">Общая сумма:</th>
+                    <th><%= totalRevenue.toLocaleString('ru-RU') %> ₸</th>
+                </tr>
+            </tfoot>
+        </table>
+    <% } else { %>
+        <p>Нет данных за указанный период.</p>
+    <% } %>
+
+    <!-- Кнопка назад -->
+    <div class="back-button">
+        <button onclick="window.location.href='/admin/statistics/'">Назад</button>
+    </div>
+</body>
+</html>
