@@ -89,3 +89,8 @@ This project is a Node.js-based application that facilitates user registration, 
 - **roleMiddleware**: Ensures users have the required roles (e.g., "ADMIN").
 - **upload**: Handles file uploads for avatars.
 - **checkRoleMiddleware**: Restricts access to routes for users with specific roles.
+
+  ## Authors
+
+- Bekzhan Rakhimbaev
+- Bogdan Shakaryan
