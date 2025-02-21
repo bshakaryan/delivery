@@ -85,7 +85,7 @@ This project is a Node.js-based application that facilitates user registration, 
 - `/admin`: Admin dashboard (GET)
 - `/admin`: Update order status (POST)
 - `/admin/edit-order/:id`: Managing order status: processing/cooking/done (GET, PUT, DELETE)
-- `/admin/edit-order/:id/add-gift`: Managing order status: processing/cooking/done (GET, PUT)   in progres....
+- `/admin/edit-order/:id/add-gift`: Compliment from the Chief (PUT)
 - `/admin/statistics`: Statistics tools page (GET)
 - `/admin/statistics/top`: Shows business statistics of orders within a date range (GET)
 - `/admin/statistics/username`: Shows business statistics of orders for a specific user (GET)
